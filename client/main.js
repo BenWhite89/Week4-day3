@@ -1,5 +1,6 @@
 $(function() {
     const destination = `http://localhost:3000/api/chirps`;
+    const destUsers = 'http://localhost:3000/api/users';
     let body = '';
 
     function doubleDigits(input) {
@@ -18,8 +19,8 @@ $(function() {
         }
     }
 
-    function Chirp (message, timestamp) {
-        this.user = 'Ben';
+    function Chirp (user, message) {
+        this.user = user;
         this.message = message;
     }
 
@@ -62,8 +63,23 @@ $(function() {
         }
     }
 
+    var users = function() {
+        $.get(destUsers, function(data) {
+            data.forEach(function(e) {
+                $(`#users`).append($(`<option></option>`)
+                    .attr("value", e.id)
+                    .text(e.user));
+            })
+        })
+    }
+
+    users();
+
     var refresh = function() {
          $.get(destination,function(data) {
+            // data.sort(function(a,b) {
+            //     return a.timestamp - b.timestamp;
+            // });
             data.reverse().forEach(function(e) {
                 $(`#feed`).append(`<li id="${e.id}" class="chirp"></li>`);
                 $(`#${e.id}`).append(`<div class="user">${e.user}</div>`);
@@ -80,7 +96,7 @@ $(function() {
                         })
 
                         this.remove();
-                    });;
+                    });
                 $(`#${e.id}`).append(`<div class="msg">${e.message}</div>`);
                 $(`#${e.id}`).append(`<div class="ts">${dateDiff(e.timestamp)}</div>`);
             });
@@ -89,20 +105,29 @@ $(function() {
 
     refresh();
 
-    $('.field input').keyup(function() {
+    $('.field1 input').keyup(function() {
         if ($(this).val().length == 0)  {
-            $('.submit input').attr('disabled', 'disabled');
+            $('.submit1 input').attr('disabled', 'disabled');
         } else {
-            $('.submit input').removeAttr('disabled');
+            $('.submit1 input').removeAttr('disabled');
+        }
+    });
+
+    $('.field2 input').keyup(function() {
+        if ($('#user-text').val().length != 0 && $('#email-text').val().length != 0)  {
+            $('.submit2 input').removeAttr('disabled');
+        } else {
+            $('.submit2 input').attr('disabled', 'disabled');
         }
     });
 
     $(`#chirp-submit`).click(function(e) {
         e.preventDefault();
 
-
-        let   chirp = new Chirp($(`#chirp-text`).val());
-        let   chirpJSON = JSON.stringify(chirp);
+        let usr = $(`#users`).find(":selected").attr('value');
+        let msg = $(`#chirp-text`).val();
+        let chirp = new Chirp(usr,msg);
+        let chirpJSON = JSON.stringify(chirp);
 
         let postChirp = $.ajax({
                 method: 'POST',
@@ -110,13 +135,38 @@ $(function() {
                 contentType: "application/json",
                 data: chirpJSON,
                 async: true,
-                complete: function() {
+                success: function() {
                     $('#feed').empty();
                     refresh();
                 }
             })
 
-        $('.submit input').attr('disabled', 'disabled');
+        $('.submit1 input').attr('disabled', 'disabled');
         $(`#chirp-text`).val("");
+    })
+
+    $(`#user-submit`).click(function(e) {
+        e.preventDefault();
+
+        let usr = $(`#user-text`).val();
+        let eml = $(`#email-text`).val();
+        let usrObj = {user: usr, email: eml};
+        let usrJSON = JSON.stringify(usrObj);
+
+        let addUser = $.ajax({
+            method: 'POST',
+            url: destUsers,
+            contentType: "application/json",
+            data: usrJSON,
+            success: function() {
+                $(`#users`).empty();
+                users();
+            }
+        })
+
+        $('.submit2 input').attr('disabled', 'disabled');
+        $('#user-text').val('');
+        $('#email-text').val('');
+
     })
 });

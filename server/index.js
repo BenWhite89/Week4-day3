@@ -39,7 +39,6 @@ function modifyChirps(procedure, array) {
                         reject(err);
                     } else {
                         connection.release();
-                        console.log(resultsets[0]);
                         fulfill(resultsets[0]);
                     }
                 })
@@ -87,6 +86,25 @@ app.route('/api/chirps')
                 res.status(500).send(err);
             });
     });
+
+app.route('/api/users')
+    .get((req, res) => {
+        modifyChirps('GetAllUsers', [])
+        .then(function(users) {
+            res.send(users);
+        }, function(err) {
+            res.status(500).send(err);
+        });
+    }).post((req, res) => {
+        let user = req.body.user;
+        let email = req.body.email
+        modifyChirps('CreateUser', [user, email])
+            .then(function(id) {
+                res.status(201).send(id);
+            }, function(err) {
+                res.status(500).send(err);
+            });
+    })
 
 app.route('/:id')
     .get((req, res) => {
