@@ -1,4 +1,3 @@
-let http = require('http');
 let fs = require('fs');
 let path = require('path');
 let express = require('express');
@@ -105,21 +104,5 @@ app.route('/api/users')
                 res.status(500).send(err);
             });
     })
-
-app.route('/:id')
-    .get((req, res) => {
-        let address = req.params.id;
-        let ext = path.extname(req.params.id);
-        let extTrim = ext.substr(1,ext.length);
-        let extOp = `text/${extTrim}`;
-
-        fs.readFile(address, (err) => {
-            if (err) {
-                res.status(404).send('Not Found');
-            }
-            res.status(201).set('Content-type', extOp);
-            res.send(address)
-        })
-    });
 
 app.listen(3000);
