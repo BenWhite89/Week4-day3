@@ -80,10 +80,10 @@ $(function() {
             data.reverse().forEach(function(e) {
                 $(`#feed`).append(`<li id="${e.id}" class="chirp"></li>`);
                 $(`#${e.id}`).append(`<div class="user">${e.user}</div>`);
-                $(`#${e.id}`).append(`<span class="delete">x</span>`)
-                    .click(function(e) {
+                $(`#${e.id}`).append(`<span class="delete" id="class${e.id}">x</span>`);
+                $(`#class${e.id}`).click(function(e) {
                         let op = new Object();
-                            op.index = this.id;
+                        op.index = this.parentElement.id;
 
                         let deleteChirp = $.ajax({
                             method: 'DELETE',
@@ -92,10 +92,28 @@ $(function() {
                             async: true
                         })
 
-                        this.remove();
+                        this.parentElement.remove();
                     });
                 $(`#${e.id}`).append(`<div class="msg">${e.message}</div>`);
-                $(`#${e.id}`).append(`<div class="ts">${dateDiff(e.timestamp)}</div>`);
+                $(`#${e.id}`).append(`<span class="update" id="update${e.id}">Update</span>`);
+                $(`#update${e.id}`).click(function(e) {
+                        let update = prompt("Update chirp:", "");
+
+                        if (update != null) {
+                            let op = new Object();
+                            op.index = this.parentElement.id;
+                            op.message = update;
+
+                            let updateChirp = $.ajax({
+                                method: 'PATCH',
+                                url: destination,
+                                data: op
+                            })
+
+                            this.previousElementSibling.innerHTML = update;
+                        }
+                    })
+                $(`#${e.id}`).append(`<span class="ts">${dateDiff(e.timestamp)}</span>`);
             });
         })
     }

@@ -29,6 +29,13 @@ input[type=submit] {
   padding-bottom: 3em;
   left: 10%;
 }
+.update {
+  width: 20%;
+  font-size: .6em;
+  margin: 0em;
+  color: #26353b;
+  cursor: pointer;
+}
 .chirp {
   padding-top: .5em;
   padding-bottom: .5em;
@@ -52,6 +59,7 @@ li {
   text-align: right;
   padding-right: 2em;
   padding-top: .3em;
+  padding-left: 14em;
 }
 .submit1 {
   position: absolute;

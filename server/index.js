@@ -84,6 +84,15 @@ app.route('/api/chirps')
             }, function(err) {
                 res.status(500).send(err);
             });
+    }).patch((req, res) => {
+        let id = req.body.index;
+        let message = req.body.message;
+        modifyChirps('UpdateChirp', [id, message])
+            .then(function(id) {
+                res.status(201).send(id);
+            }, function(err) {
+                res.status(500).send(err);
+            });
     });
 
 app.route('/api/users')
