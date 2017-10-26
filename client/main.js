@@ -75,45 +75,65 @@ $(function() {
 
     users();
 
+    var createChirp = function(id, user, message, timestamp) {
+        $(`#feed`).append(`<li id="${id}" class="chirp"></li>`);
+        $(`#${id}`).append(`<div class="user">${user}</div>`);
+        $(`#${id}`).append(`<span class="delete" id="class${id}">x</span>`);
+        $(`#class${id}`).click(function(e) {
+                let op = new Object();
+                op.index = this.parentElement.id;
+
+                let deleteChirp = $.ajax({
+                    method: 'DELETE',
+                    url: destination,
+                    data: op,
+                    async: true
+                })
+
+                this.parentElement.remove();
+            });
+        $(`#${id}`).append(`<div class="msg">${message}</div>`);
+        $(`#${id}`).append(`<span class="update" id="update${id}">Update</span>`);
+        $(`#update${id}`).click(function(e) {
+                $(`.modal`).css('display', 'block');
+                $(`.update-form`).attr('id',`form${id}`);
+            });
+        $(`#${id}`).append(`<span class="ts">${dateDiff(timestamp)}</span>`);
+    }
+
     var refresh = function() {
          $.get(destination,function(data) {
             data.reverse().forEach(function(e) {
-                $(`#feed`).append(`<li id="${e.id}" class="chirp"></li>`);
-                $(`#${e.id}`).append(`<div class="user">${e.user}</div>`);
-                $(`#${e.id}`).append(`<span class="delete" id="class${e.id}">x</span>`);
-                $(`#class${e.id}`).click(function(e) {
-                        let op = new Object();
-                        op.index = this.parentElement.id;
+                let id = e.id;
+                let user = e.user;
+                let message = e.message;
+                let timestamp = e.timestamp
 
-                        let deleteChirp = $.ajax({
-                            method: 'DELETE',
-                            url: destination,
-                            data: op,
-                            async: true
-                        })
+                createChirp(id, user, message, timestamp);
 
-                        this.parentElement.remove();
-                    });
-                $(`#${e.id}`).append(`<div class="msg">${e.message}</div>`);
-                $(`#${e.id}`).append(`<span class="update" id="update${e.id}">Update</span>`);
-                $(`#update${e.id}`).click(function(e) {
-                        let update = prompt("Update chirp:", "");
+                // $(`#feed`).append(`<li id="${e.id}" class="chirp"></li>`);
+                // $(`#${e.id}`).append(`<div class="user">${e.user}</div>`);
+                // $(`#${e.id}`).append(`<span class="delete" id="class${e.id}">x</span>`);
+                // $(`#class${e.id}`).click(function(e) {
+                //         let op = new Object();
+                //         op.index = this.parentElement.id;
 
-                        if (update != null) {
-                            let op = new Object();
-                            op.index = this.parentElement.id;
-                            op.message = update;
+                //         let deleteChirp = $.ajax({
+                //             method: 'DELETE',
+                //             url: destination,
+                //             data: op,
+                //             async: true
+                //         })
 
-                            let updateChirp = $.ajax({
-                                method: 'PATCH',
-                                url: destination,
-                                data: op
-                            })
-
-                            this.previousElementSibling.innerHTML = update;
-                        }
-                    })
-                $(`#${e.id}`).append(`<span class="ts">${dateDiff(e.timestamp)}</span>`);
+                //         this.parentElement.remove();
+                //     });
+                // $(`#${e.id}`).append(`<div class="msg">${e.message}</div>`);
+                // $(`#${e.id}`).append(`<span class="update" id="update${e.id}">Update</span>`);
+                // $(`#update${e.id}`).click(function(e) {
+                //         $(`.modal`).css('display', 'block');
+                //         $(`.update-form`).attr('id',`form${id}`);
+                //     });
+                // $(`#${e.id}`).append(`<span class="ts">${dateDiff(e.timestamp)}</span>`);
             });
         })
     }
@@ -136,6 +156,14 @@ $(function() {
         }
     });
 
+    $('.update-text').keyup(function() {
+        if($(this).val().length == 0) {
+            $('.update-submit').attr('disabled', 'disabled');
+        } else {
+            $('.update-submit').removeAttr('disabled');
+        }
+    });
+
     $(`#chirp-submit`).click(function(e) {
         e.preventDefault();
 
@@ -154,8 +182,7 @@ $(function() {
                     $('#feed').empty();
                     refresh();
                 }
-            })
-
+            });
         $('.submit1 input').attr('disabled', 'disabled');
         $(`#chirp-text`).val("");
     })
@@ -183,5 +210,36 @@ $(function() {
         $('#user-text').val('');
         $('#email-text').val('');
 
+    })
+
+    $(`.update-submit`).click(function(e) {
+        e.preventDefault();
+
+        let id = $(`.update-form`).attr('id').substr(4);
+        let text = $(`.update-text`).val();
+
+        if (text != null) {
+            let op = new Object();
+            op.index = id;
+            op.message = text;
+
+            let updateChirp = $.ajax({
+                method: 'PATCH',
+                url: destination,
+                data: op
+            })
+        };
+
+        $(`#${id} .msg`).text(text);
+        $(`.update-text`).text('');
+        $(`.modal`).css('display', 'none');
+    });
+
+    $(`.update-cancel`).click(function(e) {
+        e.preventDefault();
+
+        $(`.update-text`).val('');
+        $(`.update-submit`).attr('disabled','disabled');
+        $(`.modal`).css('display', 'none');
     })
 });
