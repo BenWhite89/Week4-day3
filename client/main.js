@@ -77,9 +77,6 @@ $(function() {
 
     var refresh = function() {
          $.get(destination,function(data) {
-            // data.sort(function(a,b) {
-            //     return a.timestamp - b.timestamp;
-            // });
             data.reverse().forEach(function(e) {
                 $(`#feed`).append(`<li id="${e.id}" class="chirp"></li>`);
                 $(`#${e.id}`).append(`<div class="user">${e.user}</div>`);
