@@ -231,7 +231,8 @@ $(function() {
         };
 
         $(`#${id} .msg`).text(text);
-        $(`.update-text`).text('');
+        $(`.update-text`).val('');
+        $(`.update-submit`).attr('disabled','disabled');
         $(`.modal`).css('display', 'none');
     });
 
